@@ -50,3 +50,14 @@ typechecks and the SQL it depends on is tested, but expect to fix a small thing 
 - Privacy: the app stores weekday and time of busy blocks only, never course names. Friends can learn whether
   a friend is free right now, never what the class is. Names and programs are visible to other signed-in UW
   students; emails are not.
+
+## Live campus-area events (sync)
+
+`supabase/functions/sync-events` pulls the Explore Waterloo Region iCalendar feed and keeps events near UW. `supabase/sync_events.sql` adds a `source_uid` column and schedules the sync every 3 hours.
+
+1. Set a secret: `supabase secrets set SYNC_SECRET=<long random string>`
+2. Deploy: `supabase functions deploy sync-events --no-verify-jwt`
+3. In the Supabase SQL editor, run `sync_events.sql` after replacing `<PROJECT_REF>` and `<SYNC_SECRET>`. Don't commit the filled-in version.
+4. Test once: `curl -X POST https://<PROJECT_REF>.supabase.co/functions/v1/sync-events -H "x-sync-secret: <SYNC_SECRET>"`
+
+Before public use, confirm with Explore Waterloo Region that reusing their event data is allowed.
