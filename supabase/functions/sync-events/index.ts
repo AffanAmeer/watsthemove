@@ -22,7 +22,8 @@ Deno.serve(async (req) => {
     return json({ error: "feed unavailable", status: feedRes.status }, 502);
   }
 
-  const events = parseFeed(await feedRes.text());
+  // The UW calendar lists only university events, so no campus-area filter is needed.
+  const events = parseFeed(await feedRes.text(), { campusOnly: false });
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
