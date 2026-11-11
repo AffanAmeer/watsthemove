@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Api } from "./api/types";
-import type { BusyBlock, CampusEvent, Friend, Me, Move, NewMove } from "./types";
+import type { BusyBlock, CampusEvent, Friend, Me, Move, NewMove, Person } from "./types";
 import { Auth, NameStep } from "./screens/Auth";
 import { Home } from "./screens/Home";
 import { Post } from "./screens/Post";
@@ -9,10 +9,10 @@ import { Schedule } from "./screens/Schedule";
 import { AddEvent } from "./screens/AddEvent";
 
 type View = "home" | "post" | "friends" | "schedule" | "addEvent";
-type Data = { friends: Friend[]; moves: Move[]; events: CampusEvent[]; freeIds: string[]; busy: BusyBlock[] };
+type Data = { friends: Friend[]; requests: Person[]; moves: Move[]; events: CampusEvent[]; freeIds: string[]; busy: BusyBlock[] };
 type Toast = { text: string; undo?: () => void };
 
-const EMPTY: Data = { friends: [], moves: [], events: [], freeIds: [], busy: [] };
+const EMPTY: Data = { friends: [], requests: [], moves: [], events: [], freeIds: [], busy: [] };
 const namedKey = (id: string) => `wtm-named-${id}`;
 
 /** Invite and move links arrive as ?add=<id> / ?move=<id>. Keep them through sign-in, then clean the address bar. */
@@ -70,10 +70,10 @@ export default function App({ api, clock = () => new Date() }: { api: Api; clock
   const refresh = useCallback(async () => {
     const at = clockRef.current();
     setNow(at);
-    const [friends, moves, events, freeIds, busy] = await Promise.all([
-      api.listFriends(), api.listMoves(at), api.listEvents(at), api.friendsFreeNow(at), api.getBusy(),
+    const [friends, requests, moves, events, freeIds, busy] = await Promise.all([
+      api.listFriends(), api.listIncomingRequests(), api.listMoves(at), api.listEvents(at), api.friendsFreeNow(at), api.getBusy(),
     ]);
-    setData({ friends, moves, events, freeIds, busy });
+    setData({ friends, requests, moves, events, freeIds, busy });
   }, [api]);
 
   const ready = !!me && named;
@@ -185,7 +185,20 @@ export default function App({ api, clock = () => new Date() }: { api: Api; clock
     if (view === "post") return <Post now={now} onBack={() => setView("home")} onPost={post} />;
     if (view === "friends") {
       return (
-        <Friends me={me} friends={data.friends} onBack={() => setView("home")}
+        <Friends me={me} friends={data.friends} requests={data.requests} onBack={() => setView("home")}
+          onSendRequest={async (email) => {
+            try {
+              await api.sendFriendRequest(email);
+              say("If that's a UW student on WatsTheMove, they'll see your request");
+            } catch (e) { fail(e); }
+          }}
+          onRespond={async (p, accept) => {
+            try {
+              await api.respondToRequest(p.id, accept);
+              await refresh();
+              say(accept ? `You and ${p.name || "them"} are friends` : "Request declined");
+            } catch (e) { fail(e); }
+          }}
           onInvite={async () => { if ((await shareOrCopy(inviteUrl(me), "Join me on WatsTheMove")) === "copied") say("Link copied"); }}
           onToggleClose={async (f) => {
             try { await api.setClose(f.id, !f.isClose); await refresh(); } catch (e) { fail(e); }

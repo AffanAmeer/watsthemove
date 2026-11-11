@@ -88,6 +88,21 @@ export function createSupabaseApi(url: string, anonKey: string): Api {
     async acceptInvite(inviterId) {
       fail((await sb.rpc("accept_invite", { inviter: inviterId })).error);
     },
+    async listIncomingRequests() {
+      const id = await uid();
+      const { data, error } = await sb.from("friend_requests").select("from_id").eq("to_id", id);
+      fail(error);
+      const fromIds = ((data ?? []) as Array<{ from_id: string }>).map((r) => r.from_id);
+      const people = await names(fromIds);
+      return fromIds.map((fromId) => ({ id: fromId, name: people.get(fromId)?.name ?? "", program: people.get(fromId)?.program ?? "" }));
+    },
+    async sendFriendRequest(email) {
+      if (!UW_EMAIL.test(email.trim())) throw new AppError("Use a @uwaterloo.ca email");
+      fail((await sb.rpc("send_friend_request", { target_email: email.trim().toLowerCase() })).error);
+    },
+    async respondToRequest(fromId, accept) {
+      fail((await sb.rpc("respond_friend_request", { from_user: fromId, accept })).error);
+    },
     async listMoves(now) {
       const { from, to } = windowFor(now);
       const { data, error } = await sb

@@ -1,4 +1,4 @@
-import type { BusyBlock, CampusEvent, Friend, Me, Move, NewEvent, NewMove } from "../types";
+import type { BusyBlock, CampusEvent, Friend, Me, Move, NewEvent, NewMove, Person } from "../types";
 
 export const UW_EMAIL = /^[^@\s]+@uwaterloo\.ca$/i;
 
@@ -13,6 +13,9 @@ export interface Api {
   listFriends(): Promise<Friend[]>;
   setClose(friendId: string, close: boolean): Promise<void>;
   acceptInvite(inviterId: string): Promise<void>;
+  listIncomingRequests(): Promise<Person[]>;
+  sendFriendRequest(email: string): Promise<void>;
+  respondToRequest(fromId: string, accept: boolean): Promise<void>;
   listMoves(now: Date): Promise<Move[]>;
   postMove(move: NewMove): Promise<void>;
   deleteMove(moveId: string): Promise<void>;
