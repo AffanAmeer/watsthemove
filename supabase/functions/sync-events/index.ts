@@ -1,14 +1,8 @@
-// Supabase Edge Function: pulls the Explore Waterloo Region iCalendar feed,
-// keeps campus-area events, and upserts them into public.campus_events.
-//
-// Deploy:  supabase functions deploy sync-events --no-verify-jwt
-// Secret:  supabase secrets set SYNC_SECRET=<a long random string>
-// Call:    curl -X POST https://<project>.supabase.co/functions/v1/sync-events -H "x-sync-secret: <same string>"
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { parseFeed } from "./feed.ts";
 
-const FEED_URL = "https://explorewaterloo.ca/events/list/?ical=1";
+const FEED_URL = "https://uwaterloo.ca/events/events/ical";
 const KEEP_PAST_HOURS = 24;
 
 Deno.serve(async (req) => {
@@ -51,7 +45,6 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Drop synced events that ended a while ago. Hand-added events have no source_uid and are kept.
   const cutoff = new Date(Date.now() - KEEP_PAST_HOURS * 3600_000).toISOString();
   const { error: pruneError } = await supabase
     .from("campus_events")
