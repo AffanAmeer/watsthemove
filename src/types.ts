@@ -2,7 +2,9 @@ export type Audience = "close" | "friends" | "open";
 export type Category = "gym" | "food" | "study" | "hang";
 export type Day = "today" | "tomorrow";
 
-export type Me = { id: string; email: string; name: string; program: string };
+export type Me = { id: string; email: string; name: string; program: string; isAdmin?: boolean };
+
+export type NewEvent = { title: string; startsAt: string; place: string; url: string | null };
 
 export type Person = { id: string; name: string; program: string };
 export type Friend = Person & { isClose: boolean };

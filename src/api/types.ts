@@ -1,4 +1,4 @@
-import type { BusyBlock, CampusEvent, Friend, Me, Move, NewMove } from "../types";
+import type { BusyBlock, CampusEvent, Friend, Me, Move, NewEvent, NewMove } from "../types";
 
 export const UW_EMAIL = /^[^@\s]+@uwaterloo\.ca$/i;
 
@@ -21,6 +21,7 @@ export interface Api {
   listEvents(now: Date): Promise<CampusEvent[]>;
   joinEvent(eventId: string): Promise<void>;
   leaveEvent(eventId: string): Promise<void>;
+  addEvent(event: NewEvent): Promise<void>;
   getBusy(): Promise<BusyBlock[]>;
   saveBusy(blocks: BusyBlock[]): Promise<void>;
   /** ids of friends who shared a schedule and are free at this moment */

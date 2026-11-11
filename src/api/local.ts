@@ -100,6 +100,9 @@ export function createLocalApi(storage: Storage = localStorage, clock: () => Dat
     async getMe() {
       return me(load());
     },
+    async addEvent() {
+      throw new AppError("Adding events needs the live backend");
+    },
     async sendCode(email) {
       if (!UW_EMAIL.test(email.trim())) throw new AppError("Use your @uwaterloo.ca email");
     },

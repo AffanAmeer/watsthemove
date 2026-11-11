@@ -17,6 +17,7 @@ export type HomeProps = {
   onPost: () => void;
   onFriends: () => void;
   onSchedule: () => void;
+  onAddEvent: () => void;
   onToggleMove: (move: Move, joined: boolean) => void;
   onToggleEvent: (event: CampusEvent, joined: boolean) => void;
   onDelete: (move: Move) => void;
@@ -62,6 +63,7 @@ export function Home(p: HomeProps) {
           <p>{p.now.toLocaleDateString("en-CA", { weekday: "short", month: "short", day: "numeric" })}</p>
         </div>
         <div className="top-right">
+          {p.me.isAdmin ? <button className="icon-button" onClick={p.onAddEvent} aria-label="Add event"><Icon name="plus" size={21} /></button> : null}
           <button className="icon-button" onClick={p.onSchedule} aria-label="My schedule"><Icon name="calendar" size={21} /></button>
           <button className="icon-button" onClick={p.onFriends} aria-label="Friends"><Icon name="people" size={21} /></button>
         </div>

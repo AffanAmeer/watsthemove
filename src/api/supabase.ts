@@ -14,10 +14,10 @@ export function createSupabaseApi(url: string, anonKey: string): Api {
   const sb: SupabaseClient = createClient(url, anonKey, { auth: { persistSession: true, autoRefreshToken: true } });
 
   async function profile(id: string, email: string): Promise<Me> {
-    const { data, error } = await sb.from("profiles").select("id, name, program").eq("id", id).single();
+    const { data, error } = await sb.from("profiles").select("id, name, program, is_admin").eq("id", id).single();
     fail(error);
-    const row = data as { id: string; name: string; program: string };
-    return { id: row.id, email, name: row.name, program: row.program };
+    const row = data as { id: string; name: string; program: string; is_admin: boolean };
+    return { id: row.id, email, name: row.name, program: row.program, isAdmin: row.is_admin };
   }
 
   async function names(ids: string[]): Promise<Map<string, { name: string; program: string }>> {
@@ -158,6 +158,14 @@ export function createSupabaseApi(url: string, anonKey: string): Api {
     },
     async joinEvent(eventId) {
       fail((await sb.from("event_joins").upsert({ event_id: eventId, user_id: await uid() })).error);
+    },
+    async addEvent(event) {
+      fail((await sb.rpc("add_campus_event", {
+        p_title: event.title,
+        p_starts_at: event.startsAt,
+        p_place: event.place,
+        p_url: event.url,
+      })).error);
     },
     async leaveEvent(eventId) {
       fail((await sb.from("event_joins").delete().eq("event_id", eventId).eq("user_id", await uid())).error);

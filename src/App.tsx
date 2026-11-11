@@ -6,8 +6,9 @@ import { Home } from "./screens/Home";
 import { Post } from "./screens/Post";
 import { Friends, inviteUrl } from "./screens/Friends";
 import { Schedule } from "./screens/Schedule";
+import { AddEvent } from "./screens/AddEvent";
 
-type View = "home" | "post" | "friends" | "schedule";
+type View = "home" | "post" | "friends" | "schedule" | "addEvent";
 type Data = { friends: Friend[]; moves: Move[]; events: CampusEvent[]; freeIds: string[]; busy: BusyBlock[] };
 type Toast = { text: string; undo?: () => void };
 
@@ -192,6 +193,14 @@ export default function App({ api, clock = () => new Date() }: { api: Api; clock
           onSignOut={async () => { await api.signOut(); setMe(null); setData(EMPTY); setView("home"); }} />
       );
     }
+    if (view === "addEvent") {
+      return (
+        <AddEvent onBack={() => setView("home")}
+          onSave={async (event) => {
+            try { await api.addEvent(event); await refresh(); setView("home"); say("Event added"); } catch (e) { fail(e); }
+          }} />
+      );
+    }
     if (view === "schedule") {
       return (
         <Schedule initial={data.busy} onBack={() => setView("home")}
@@ -204,6 +213,7 @@ export default function App({ api, clock = () => new Date() }: { api: Api; clock
       <Home me={me} now={now} friends={data.friends} moves={data.moves} events={data.events} freeIds={data.freeIds}
         busy={data.busy} highlightId={highlightId} scheduleSet={data.busy.length > 0}
         onPost={() => setView("post")} onFriends={() => setView("friends")} onSchedule={() => setView("schedule")}
+        onAddEvent={() => setView("addEvent")}
         onToggleMove={toggleMove} onToggleEvent={toggleEvent}
         onDelete={async (m) => { try { await api.deleteMove(m.id); await refresh(); say("Cancelled"); } catch (e) { fail(e); } }}
         onShare={shareMove} />
