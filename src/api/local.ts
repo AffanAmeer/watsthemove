@@ -130,6 +130,20 @@ export function createLocalApi(storage: Storage = localStorage, clock: () => Dat
         s.meId = null;
       });
     },
+    async deleteAccount() {
+      mutate((s) => {
+        const id = needMe(s);
+        s.moves = s.moves
+          .filter((m) => m.hostId !== id)
+          .map((m) => ({ ...m, goingIds: m.goingIds.filter((g) => g !== id) }));
+        s.events = s.events.map((e) => ({ ...e, goingIds: e.goingIds.filter((g) => g !== id) }));
+        s.close[id] = [];
+        s.busy[id] = [];
+        s.names[id] = { name: "", program: "" };
+        s.meId = null;
+        s.email = "";
+      });
+    },
     async saveName(name) {
       return mutate((s) => {
         const id = needMe(s);

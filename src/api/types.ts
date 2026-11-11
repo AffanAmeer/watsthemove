@@ -9,6 +9,8 @@ export interface Api {
   sendCode(email: string): Promise<void>;
   verifyCode(email: string, code: string): Promise<Me>;
   signOut(): Promise<void>;
+  /** Permanently removes the account and everything tied to it, then signs out. */
+  deleteAccount(): Promise<void>;
   saveName(name: string): Promise<Me>;
   listFriends(): Promise<Friend[]>;
   setClose(friendId: string, close: boolean): Promise<void>;

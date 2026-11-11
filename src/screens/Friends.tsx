@@ -6,9 +6,9 @@ export function inviteUrl(me: Me): string {
   return `${window.location.origin}/?add=${me.id}`;
 }
 
-export function Friends({ me, friends, requests, onBack, onInvite, onToggleClose, onSignOut, onSendRequest, onRespond }: {
+export function Friends({ me, friends, requests, onBack, onInvite, onToggleClose, onSignOut, onPrivacy, onSendRequest, onRespond }: {
   me: Me; friends: Friend[]; requests: Person[]; onBack: () => void; onInvite: () => void;
-  onToggleClose: (f: Friend) => void; onSignOut: () => void;
+  onToggleClose: (f: Friend) => void; onSignOut: () => void; onPrivacy?: () => void;
   onSendRequest: (email: string) => Promise<void>; onRespond: (p: Person, accept: boolean) => Promise<void>;
 }) {
   const [email, setEmail] = useState("");
@@ -77,6 +77,9 @@ export function Friends({ me, friends, requests, onBack, onInvite, onToggleClose
       </p>
       <p className="hint" style={{ margin: "0 4px" }}>{me.email}</p>
       <button className="secondary" style={{ marginTop: 8 }} onClick={onSignOut}>Sign out</button>
+      {onPrivacy ? (
+        <button className="secondary" style={{ marginTop: 8 }} onClick={onPrivacy}>Privacy and delete account</button>
+      ) : null}
       <div className="bottom-action">
         <button className="primary" onClick={onInvite}><Icon name="share" size={20} />Invite a friend</button>
       </div>

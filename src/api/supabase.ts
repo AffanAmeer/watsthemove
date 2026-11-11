@@ -61,6 +61,10 @@ export function createSupabaseApi(url: string, anonKey: string): Api {
     async signOut() {
       await sb.auth.signOut();
     },
+    async deleteAccount() {
+      fail((await sb.rpc("delete_my_account")).error);
+      await sb.auth.signOut();
+    },
     async saveName(name) {
       const id = await uid();
       const { error } = await sb.from("profiles").update({ name: name.trim().slice(0, 40) }).eq("id", id);

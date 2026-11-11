@@ -7,8 +7,9 @@ import { Post } from "./screens/Post";
 import { Friends, inviteUrl } from "./screens/Friends";
 import { Schedule } from "./screens/Schedule";
 import { AddEvent } from "./screens/AddEvent";
+import { Privacy } from "./screens/Privacy";
 
-type View = "home" | "post" | "friends" | "schedule" | "addEvent";
+type View = "home" | "post" | "friends" | "schedule" | "addEvent" | "privacy";
 type Data = { friends: Friend[]; requests: Person[]; moves: Move[]; events: CampusEvent[]; freeIds: string[]; busy: BusyBlock[] };
 type Toast = { text: string; undo?: () => void };
 
@@ -203,7 +204,25 @@ export default function App({ api, clock = () => new Date() }: { api: Api; clock
           onToggleClose={async (f) => {
             try { await api.setClose(f.id, !f.isClose); await refresh(); } catch (e) { fail(e); }
           }}
-          onSignOut={async () => { await api.signOut(); setMe(null); setData(EMPTY); setView("home"); }} />
+          onSignOut={async () => { await api.signOut(); setMe(null); setData(EMPTY); setView("home"); }}
+          onPrivacy={() => setView("privacy")} />
+      );
+    }
+    if (view === "privacy") {
+      return (
+        <Privacy onBack={() => setView("friends")}
+          onDelete={async () => {
+            try {
+              const id = me.id;
+              await api.deleteAccount();
+              localStorage.removeItem(namedKey(id));
+              setMe(null);
+              setNamed(false);
+              setData(EMPTY);
+              setView("home");
+              say("Account deleted");
+            } catch (e) { fail(e); }
+          }} />
       );
     }
     if (view === "addEvent") {
